@@ -21,6 +21,7 @@ class R < Formula
   depends_on "xz"
   depends_on "openblas" => :optional
   depends_on :java => :optional
+  depends_on "cairo" => :optional
 
   # needed to preserve executable permissions on files without shebangs
   skip_clean "lib/R/bin"
@@ -41,7 +42,6 @@ class R < Formula
     args = [
       "--prefix=#{prefix}",
       "--enable-memory-profiling",
-      "--without-cairo",
       "--without-x",
       "--with-aqua",
       "--with-lapack",
@@ -61,6 +61,13 @@ class R < Formula
       args << "--enable-java"
     else
       args << "--disable-java"
+    end
+
+    if build.with? "cairo"
+      args << "--with-cairo=-L#{Formula["cairo"].opt_lib} -lcairo"
+      ENV.append "LDFLAGS", "-L#{Formula["cairo"].opt_lib}"
+    else
+      args << "--without-cairo"
     end
 
     # Help CRAN packages find gettext and readline
